@@ -1,11 +1,20 @@
 using System.Text;
 using System.Text.Json;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using AIImageGeneratorBackend.Data;
+using AIImageGeneratorBackend.Services;
+using AIImageGeneratorBackend.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddSingleton<IUserService, UserService>();
+builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"))
+);
 
 var app = builder.Build();
 
@@ -13,7 +22,8 @@ app.UseSwagger();
 app.UseSwaggerUI();
 
 app.UseHttpsRedirection();
-
+app.UseAuthorization();
+app.MapControllers();
 
 
 app.MapGet("/", async () =>
@@ -85,73 +95,3 @@ app.MapDelete("/user/{id}", async (int id, IUserService userService) =>
 
 
 app.Run();
-
-
-
-public class User
-{
-    public int Id { get; set; }
-    public string Name { get; set; }
-}
-
-
-
-public interface IUserService
-{
-    Task<User?> GetUserById(int id);
-    Task<List<User>> Search(string name);
-    Task<User> CreateUser(User user);
-    Task<bool> UpdateUser(int id, User user);
-    Task<bool> DeleteUser(int id);
-}
-
-
-
-public class UserService : IUserService
-{
-    private readonly List<User> _users = new();
-
-    public Task<User?> GetUserById(int id)
-    {
-        var user = _users.FirstOrDefault(u => u.Id == id);
-        return Task.FromResult(user);
-    }
-
-    public Task<List<User>> Search(string name)
-    {
-        var result = _users
-            .Where(u => u.Name.Contains(name, StringComparison.OrdinalIgnoreCase))
-            .ToList();
-
-        return Task.FromResult(result);
-    }
-
-    public Task<User> CreateUser(User user)
-    {
-        user.Id = _users.Count + 1;
-        _users.Add(user);
-        return Task.FromResult(user);
-    }
-
-    public Task<bool> UpdateUser(int id, User user)
-    {
-        var existing = _users.FirstOrDefault(u => u.Id == id);
-
-        if (existing == null)
-            return Task.FromResult(false);
-
-        existing.Name = user.Name;
-        return Task.FromResult(true);
-    }
-
-    public Task<bool> DeleteUser(int id)
-    {
-        var user = _users.FirstOrDefault(u => u.Id == id);
-
-        if (user == null)
-            return Task.FromResult(false);
-
-        _users.Remove(user);
-        return Task.FromResult(true);
-    }
-}

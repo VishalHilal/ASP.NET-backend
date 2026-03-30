@@ -42,6 +42,8 @@ packages/
 
 TestResults/
 
+/Migrations
+
 coverage/
 *.coverage
 *.coveragexml
