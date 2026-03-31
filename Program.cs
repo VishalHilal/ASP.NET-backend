@@ -12,9 +12,11 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddHttpClient<GeminiService>();
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"))
 );
+builder.Configuration.AddUserSecrets<Program>();
 
 var app = builder.Build();
 
