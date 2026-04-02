@@ -21,8 +21,14 @@ namespace AIImageGeneratorBackend.Services
             var issuer = _config["Jwt:Issuer"];
             var audience = _config["Jwt:Audience"];
 
-            if (string.IsNullOrEmpty(key))
-                throw new InvalidOperationException("JWT Key not configured");
+            if (string.IsNullOrEmpty(key) || key.Length < 16)
+                throw new InvalidOperationException("JWT Key must be at least 16 characters long. Configure it using: dotnet user-secrets set \"Jwt:Key\" \"YourSecretKeyHere123456789\"");
+
+            if (string.IsNullOrEmpty(issuer))
+                issuer = "AIImageGeneratorBackend";
+
+            if (string.IsNullOrEmpty(audience))
+                audience = "AIImageGeneratorUsers";
 
             var keyBytes = Encoding.UTF8.GetBytes(key);
 

@@ -35,6 +35,7 @@ namespace AIImageGeneratorBackend.Services
         public async Task<User> CreateUser(User user)
         {
             user.Password = _passwordService.HashPassword(user.Password);
+            user.Id = 0; // Let database generate the ID
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
             return user;
