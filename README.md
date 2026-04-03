@@ -397,13 +397,48 @@ curl -X GET "https://localhost:7000/api/v1/users/search?name=john&page=1&pageSiz
 
 ## Docker Support
 
-Build and run with Docker:
-```bash
-# Build the Docker image
-docker build -t ai-image-generator-backend .
+### Quick Start with Docker Compose
 
-# Run the container
-docker run -p 7000:80 -p 7001:443 ai-image-generator-backend
+```bash
+# Start all services (database + API)
+docker-compose up --build
+
+# Run in background
+docker-compose up -d --build
+
+# Stop services
+docker-compose down
+
+# View logs
+docker-compose logs -f
 ```
 
-Access the API at `https://localhost:7000` and Swagger at `https://localhost:7000/swagger`.
+### Services
+
+- **PostgreSQL Database**: Port 5432
+- **ASP.NET Core API**: Ports 7000 (HTTP) and 7001 (HTTPS)
+- **Database**: `ai_image_generator`
+- **Persistent data**: Stored in Docker volume
+
+### Access Points
+
+- **API**: `http://localhost:7000` or `https://localhost:7001`
+- **Swagger**: `http://localhost:7000/swagger`
+- **Database**: `localhost:5432` (for direct access)
+
+### Environment Variables
+
+The Docker Compose file includes:
+- Database connection string
+- JWT configuration
+- Development environment settings
+
+### Build and Run
+
+```bash
+# Build Docker image only
+docker build -t ai-image-generator-backend .
+
+# Run single container
+docker run -p 7000:80 -p 7001:443 ai-image-generator-backend
+```

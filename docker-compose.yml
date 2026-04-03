@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: ai-image-generator-db
+    environment:
+      POSTGRES_DB: ai_image_generator
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres123
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  api:
+    build: .
+    container_name: ai-image-generator-api
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=ai_image_generator;Username=postgres;Password=postgres123
+      - Jwt__Key=ThisIsASecretKeyForJWTTokenGeneration123456789
+      - Jwt__Issuer=AIImageGeneratorBackend
+      - Jwt__Audience=AIImageGeneratorUsers
+    ports:
+      - "7000:80"
+      - "7001:443"
+    depends_on:
+      - postgres
+
+volumes:
+  postgres_data:
